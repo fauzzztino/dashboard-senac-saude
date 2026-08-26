@@ -147,20 +147,19 @@ try:
             st.plotly_chart(fig_redes_notas, use_container_width=True)
 
         with c4:
-            st.subheader("4. Redes Sociais x Depressão")
-            df_redes_dep = df_filtrado.groupby("Depression")["Social_Media_Hours"].mean().reset_index()
-            fig_redes_dep = px.bar(
-                df_redes_dep,
+            st.subheader("4. Redes Sociais, Depressão e Sono")
+            fig_redes_dep_sono = px.box(
+                df_filtrado,
                 x="Depression",
                 y="Social_Media_Hours",
-                color="Depression",
-                text_auto=".1f",
+                color="Sleep_Duration",
                 labels={
                     "Depression": "Sintomas Depressivos",
-                    "Social_Media_Hours": "Média de Horas em Redes Sociais"
+                    "Social_Media_Hours": "Horas em Redes Sociais",
+                    "Sleep_Duration": "Horas de Sono"
                 }
             )
-            st.plotly_chart(fig_redes_dep, use_container_width=True)
+            st.plotly_chart(fig_redes_dep_sono, use_container_width=True)
 
         st.divider()
 
