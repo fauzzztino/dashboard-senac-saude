@@ -8,7 +8,7 @@ st.set_page_config(page_title="Saúde Mental - Universitários", layout="wide")
 st.title("🧠 Dashboard: Saúde Mental e Hábitos de Universitários")
 st.markdown("Análise dos fatores associados à depressão, estresse e rotina acadêmica.")
 
-# Função que carrega o arquivo que vocês trataram no Colab
+# Função que carrega o arquivo CSV tratado
 @st.cache_data
 def carregar_dados():
     return pd.read_csv("base_tratada.csv")
@@ -31,8 +31,8 @@ try:
     st.subheader("Visão Geral da Amostra")
     col1, col2, col3 = st.columns(3)
     col1.metric("Estudantes Analisados", f"{len(df_filtrado):,}")
-    col2.metric("Nível Médio de Estresse", f"{df_filtrado['nivel_estresse'].mean():.1f} / 10")
-    col3.metric("Qualidade Média do Sono", f"{df_filtrado['Sleep_Duration'].mean():.1f} / 10")
+    col2.metric("Nível Médio de Estresse", f"{df_filtrado['nivel_estresse'].mean():.1f}")
+    col3.metric("Média de Horas de Sono", f"{df_filtrado['Sleep_Duration'].mean():.1f} h")
 
     st.divider()
 
@@ -43,12 +43,12 @@ try:
         st.subheader("1. Sono vs. Depressão")
         fig_sono = px.box(
             df_filtrado, 
-            x="indicador_depressao", 
+            x="Depression", 
             y="Sleep_Duration",
-            color="indicador_depressao",
+            color="Depression",
             labels={
-                "Sleep_Duration": "Qualidade do Sono", 
-                "indicador_depressao": "Sintomas Depressivos"
+                "Sleep_Duration": "Horas de Sono", 
+                "Depression": "Sintomas Depressivos"
             }
         )
         st.plotly_chart(fig_sono, use_container_width=True)
@@ -64,10 +64,10 @@ try:
             text_auto=".1f", # Mostra a nota exata em cima de cada barra
             labels={
                 "genero": "Gênero", 
-                "nivel_estresse": "Estresse Médio (0-10)"
+                "nivel_estresse": "Estresse Médio"
             }
         )
         st.plotly_chart(fig_estresse, use_container_width=True)
 
 except FileNotFoundError:
-    st.error("⚠️ ERRO: O arquivo 'base_tratada.csv' não está na mesma pasta que este script. Coloque os dois juntos e rode novamente.")
+    st.error("⚠️ ERRO: O arquivo 'base_tratada.csv' não foi encontrado. Verifique se ele está no GitHub com este nome exato.")
