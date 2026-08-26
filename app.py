@@ -54,12 +54,24 @@ try:
         value=(estudo_min, estudo_max)
     )
 
+    redes_min = float(df["Social_Media_Hours"].min())
+    redes_max = float(df["Social_Media_Hours"].max())
+    redes_selecionado = st.sidebar.slider(
+        "Faixa de Horas em Redes Sociais:",
+        min_value=redes_min,
+        max_value=redes_max,
+        value=(redes_min, redes_max)
+    )
+
+    # Aplica TODOS os filtros na tabela
     df_filtrado = df[
         (df["genero"].isin(genero_selecionado)) &
         (df["Sleep_Duration"] >= sono_selecionado[0]) & 
         (df["Sleep_Duration"] <= sono_selecionado[1]) &
         (df["Study_Hours"] >= estudo_selecionado[0]) & 
-        (df["Study_Hours"] <= estudo_selecionado[1])
+        (df["Study_Hours"] <= estudo_selecionado[1]) &
+        (df["Social_Media_Hours"] >= redes_selecionado[0]) & 
+        (df["Social_Media_Hours"] <= redes_selecionado[1])
     ]
 
     # --- MÉTRICAS RÁPIDAS (KPIs) ---
