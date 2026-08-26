@@ -8,6 +8,9 @@ st.set_page_config(page_title="Saúde Mental - Universitários", layout="wide")
 st.title("🧠 Dashboard: Saúde Mental e Hábitos de Universitários")
 st.markdown("Análise dos fatores associados à depressão, estresse e rotina acadêmica.")
 
+# Paleta de cores de alto contraste padrão
+CORES_ALTO_CONTRASTE = px.colors.qualitative.Bold
+
 # Carrega a base de dados
 @st.cache_data
 def carregar_dados():
@@ -99,7 +102,8 @@ try:
                 x="Study_Hours",
                 y="CGPA",
                 color="genero",
-                opacity=0.4,
+                opacity=0.6,
+                color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
                     "Study_Hours": "Horas de Estudo Diárias", 
                     "CGPA": "Nota (CGPA)",
@@ -118,6 +122,7 @@ try:
                 color="Depression",
                 barmode="group",
                 text_auto=True,
+                color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
                     "atividade_fisica": "Pratica Atividade Física",
                     "Quantidade": "Total de Estudantes",
@@ -141,6 +146,7 @@ try:
                 x="Social_Media_Hours",
                 y="CGPA",
                 markers=True,
+                color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
                     "Social_Media_Hours": "Horas em Redes Sociais",
                     "CGPA": "Média da Nota (CGPA)"
@@ -155,7 +161,8 @@ try:
                 x="Social_Media_Hours",
                 y="Sleep_Duration",
                 color="Depression",
-                opacity=0.5,
+                opacity=0.6,
+                color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
                     "Social_Media_Hours": "Horas em Redes Sociais",
                     "Sleep_Duration": "Horas de Sono",
@@ -172,7 +179,7 @@ try:
             df_filtrado,
             x="CGPA",
             y="nivel_estresse",
-            color_continuous_scale="Blues",
+            color_continuous_scale="Viridis", # Cores de altíssimo contraste térmico (roxo, verde e amarelo)
             labels={
                 "CGPA": "Nota (CGPA)",
                 "nivel_estresse": "Nível de Estresse"
