@@ -32,7 +32,7 @@ try:
     col1, col2, col3 = st.columns(3)
     col1.metric("Estudantes Analisados", f"{len(df_filtrado):,}")
     col2.metric("Nível Médio de Estresse", f"{df_filtrado['nivel_estresse'].mean():.1f} / 10")
-    col3.metric("Qualidade Média do Sono", f"{df_filtrado['qualidade_sono'].mean():.1f} / 10")
+    col3.metric("Qualidade Média do Sono", f"{df_filtrado['Sleep_Duration'].mean():.1f} / 10")
 
     st.divider()
 
@@ -44,10 +44,10 @@ try:
         fig_sono = px.box(
             df_filtrado, 
             x="indicador_depressao", 
-            y="qualidade_sono",
+            y="Sleep_Duration",
             color="indicador_depressao",
             labels={
-                "qualidade_sono": "Qualidade do Sono", 
+                "Sleep_Duration": "Qualidade do Sono", 
                 "indicador_depressao": "Sintomas Depressivos"
             }
         )
