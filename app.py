@@ -22,10 +22,6 @@ def carregar_dados():
     if "atividade_fisica" in df.columns:
         df["atividade_fisica"] = df["atividade_fisica"].replace({True: "Sim", False: "Não", "True": "Sim", "False": "Não", 1: "Sim", 0: "Não"})
         
-    # Cria uma coluna de sono arredondada para evitar a legenda quebrada
-    if "Sleep_Duration" in df.columns:
-        df["Sono_Arredondado"] = df["Sleep_Duration"].round(0).astype(int).astype(str) + " horas"
-        
     return df
 
 try:
@@ -153,16 +149,17 @@ try:
             st.plotly_chart(fig_redes_notas, use_container_width=True)
 
         with c4:
-            st.subheader("4. Redes Sociais, Depressão e Sono")
-            fig_redes_dep_sono = px.box(
+            st.subheader("4. Redes Sociais, Sono e Depressão")
+            fig_redes_dep_sono = px.scatter(
                 df_filtrado,
-                x="Depression",
-                y="Social_Media_Hours",
-                color="Sono_Arredondado",
+                x="Social_Media_Hours",
+                y="Sleep_Duration",
+                color="Depression",
+                opacity=0.5,
                 labels={
-                    "Depression": "Sintomas Depressivos",
                     "Social_Media_Hours": "Horas em Redes Sociais",
-                    "Sono_Arredondado": "Tempo de Sono"
+                    "Sleep_Duration": "Horas de Sono",
+                    "Depression": "Sintomas Depressivos"
                 }
             )
             st.plotly_chart(fig_redes_dep_sono, use_container_width=True)
