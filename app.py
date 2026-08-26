@@ -6,7 +6,7 @@ import plotly.express as px
 st.set_page_config(page_title="Saúde Mental - Universitários", layout="wide")
 
 st.title("🧠 Dashboard: Saúde Mental e Hábitos de Universitários")
-st.markdown("Análise otimizada com as melhores práticas de visualização de dados.")
+st.markdown("Análise dos fatores associados à depressão, estresse e rotina acadêmica.")
 
 # Carrega a base de dados
 @st.cache_data
@@ -78,22 +78,24 @@ try:
         c1, c2 = st.columns(2)
 
         with c1:
-            st.subheader("1. Média de Sono por Depressão")
-            st.markdown("*(Gráfico de Colunas: Ideal para comparar categorias)*")
-            df_sono = df_filtrado.groupby("Depression")["Sleep_Duration"].mean().reset_index()
-            fig_sono = px.bar(
-                df_sono, 
-                x="Depression", 
+            st.subheader("1. Média de Sono por Idade e Depressão")
+            df_sono_linha = df_filtrado.groupby(['Age', 'Depression'])['Sleep_Duration'].mean().reset_index()
+            fig_sono = px.line(
+                df_sono_linha, 
+                x="Age", 
                 y="Sleep_Duration",
                 color="Depression",
-                text_auto=".1f",
-                labels={"Sleep_Duration": "Horas de Sono (Média)", "Depression": "Sintomas Depressivos"}
+                markers=True,
+                labels={
+                    "Age": "Idade do Estudante",
+                    "Sleep_Duration": "Horas de Sono (Média)", 
+                    "Depression": "Sintomas Depressivos"
+                }
             )
             st.plotly_chart(fig_sono, use_container_width=True)
 
         with c2:
             st.subheader("2. Estresse Médio por Gênero")
-            st.markdown("*(Gráfico de Colunas: Ideal para comparar categorias)*")
             df_estresse = df_filtrado.groupby("genero")["nivel_estresse"].mean().reset_index()
             fig_estresse = px.bar(
                 df_estresse, 
@@ -112,25 +114,23 @@ try:
 
         with c3:
             st.subheader("3. Estudo vs. Desempenho (Notas)")
-            st.markdown("*(Mapa de Calor: Resolve a sobreposição de milhares de pontos)*")
             fig_estudo = px.density_heatmap(
                 df_filtrado,
                 x="Study_Hours",
                 y="CGPA",
-                color_continuous_scale="Blues", # Cores suaves
+                color_continuous_scale="Blues",
                 labels={"Study_Hours": "Horas de Estudo Diárias", "CGPA": "Nota (CGPA)"}
             )
             st.plotly_chart(fig_estudo, use_container_width=True)
 
         with c4:
             st.subheader("4. Redes Sociais vs. Estresse")
-            st.markdown("*(Gráfico de Linha: Mostra a progressão do estresse)*")
             df_redes = df_filtrado.groupby("Social_Media_Hours")["nivel_estresse"].mean().reset_index()
             fig_redes = px.line(
                 df_redes,
                 x="Social_Media_Hours",
                 y="nivel_estresse",
-                markers=True, # Adiciona bolinhas nos pontos
+                markers=True,
                 labels={"Social_Media_Hours": "Horas em Redes Sociais", "nivel_estresse": "Média de Estresse"}
             )
             st.plotly_chart(fig_redes, use_container_width=True)
