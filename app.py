@@ -80,8 +80,8 @@ try:
     col1.metric("Estudantes Analisados", f"{len(df_filtrado):,}")
     
     if not df_filtrado.empty:
-        col2.metric("Nível Médio de Estresse", f"{df_filtrado['nivel_estresse'].mean():.1f}")
-        col3.metric("Média de Horas de Sono", f"{df_filtrado['Sleep_Duration'].mean():.1f} h")
+        col2.metric("Nível Médio de Estresse", f"{df_filtrado['nivel_estresse'].mean():.0f}")
+        col3.metric("Média de Horas de Sono", f"{df_filtrado['Sleep_Duration'].mean():.0f} h")
     else:
         col2.metric("Nível Médio de Estresse", "0")
         col3.metric("Média de Horas de Sono", "0 h")
@@ -124,6 +124,8 @@ try:
                     "Depression": "Sintomas Depressivos"
                 }
             )
+            # Força formatação inteira no texto das barras
+            fig_ativ.update_traces(texttemplate='%{y:.0f}', textposition='outside')
             st.plotly_chart(fig_ativ, use_container_width=True)
 
         st.divider()
@@ -134,6 +136,8 @@ try:
         with c3:
             st.subheader("3. Redes Sociais x Notas")
             df_redes_notas = df_filtrado.groupby("Social_Media_Hours")["CGPA"].mean().reset_index()
+            # Arredonda os valores para inteiro
+            df_redes_notas["CGPA"] = df_redes_notas["CGPA"].round(0)
             fig_redes_notas = px.line(
                 df_redes_notas,
                 x="Social_Media_Hours",
