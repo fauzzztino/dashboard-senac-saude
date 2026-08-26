@@ -14,11 +14,9 @@ def carregar_dados():
     df = pd.read_csv("base_tratada.csv")
     
     # TRADUÇÕES DOS DADOS
-    # Traduz a coluna de Depressão (True/False para Sim/Não)
     if "Depression" in df.columns:
         df["Depression"] = df["Depression"].replace({True: "Sim", False: "Não", "True": "Sim", "False": "Não"})
     
-    # Traduz a coluna de Gênero (Inglês para Português)
     if "genero" in df.columns:
         df["genero"] = df["genero"].replace({"Female": "Feminino", "Male": "Masculino", "Other": "Outros"})
         
@@ -47,7 +45,7 @@ try:
 
     st.divider()
 
-    # --- GRÁFICOS ---
+    # --- PRIMEIRA LINHA DE GRÁFICOS ---
     c1, c2 = st.columns(2)
 
     with c1:
@@ -72,13 +70,48 @@ try:
             x="genero", 
             y="nivel_estresse",
             color="genero",
-            text_auto=".1f", # Mostra a nota exata em cima de cada barra
+            text_auto=".1f",
             labels={
                 "genero": "Gênero", 
                 "nivel_estresse": "Estresse Médio"
             }
         )
         st.plotly_chart(fig_estresse, use_container_width=True)
+
+    st.divider()
+
+    # --- SEGUNDA LINHA DE GRÁFICOS ---
+    c3, c4 = st.columns(2)
+
+    with c3:
+        st.subheader("3. Estudo vs. Desempenho (Notas)")
+        fig_estudo = px.scatter(
+            df_filtrado,
+            x="Study_Hours",
+            y="CGPA",
+            color="genero",
+            labels={
+                "Study_Hours": "Horas de Estudo Diárias", 
+                "CGPA": "Nota (CGPA)",
+                "genero": "Gênero"
+            }
+        )
+        st.plotly_chart(fig_estudo, use_container_width=True)
+
+    with c4:
+        st.subheader("4. Redes Sociais vs. Estresse")
+        fig_redes = px.scatter(
+            df_filtrado,
+            x="Social_Media_Hours",
+            y="nivel_estresse",
+            color="Depression",
+            labels={
+                "Social_Media_Hours": "Horas em Redes Sociais", 
+                "nivel_estresse": "Nível de Estresse",
+                "Depression": "Sintomas Depressivos"
+            }
+        )
+        st.plotly_chart(fig_redes, use_container_width=True)
 
 except FileNotFoundError:
     st.error("⚠️ ERRO: O arquivo 'base_tratada.csv' não foi encontrado.")
