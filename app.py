@@ -6,14 +6,13 @@ import plotly.express as px
 st.set_page_config(page_title="Saúde Mental - Universitários", layout="wide")
 
 st.title("🧠 Dashboard: Saúde Mental e Hábitos de Universitários")
-st.markdown("Análise dos fatores associados à depressão, estresse e rotina acadêmica.")
+st.markdown("Análise otimizada com as melhores práticas de visualização de dados.")
 
 # Carrega a base de dados
 @st.cache_data
 def carregar_dados():
     df = pd.read_csv("base_tratada.csv")
     
-    # TRADUÇÕES DOS DADOS
     if "Depression" in df.columns:
         df["Depression"] = df["Depression"].replace({True: "Sim", False: "Não", "True": "Sim", "False": "Não"})
     
@@ -28,14 +27,12 @@ try:
     # --- FILTROS (BARRA LATERAL) ---
     st.sidebar.header("⚙️ Filtros do Painel")
     
-    # 1. Filtro de Gênero (Caixa de múltipla escolha)
     genero_selecionado = st.sidebar.multiselect(
         "Selecione o Gênero:",
         options=df["genero"].dropna().unique(),
         default=df["genero"].dropna().unique()
     )
 
-    # 2. Filtro de Tempo de Sono (Barra deslizante)
     sono_min = float(df["Sleep_Duration"].min())
     sono_max = float(df["Sleep_Duration"].max())
     sono_selecionado = st.sidebar.slider(
@@ -45,7 +42,6 @@ try:
         value=(sono_min, sono_max)
     )
 
-    # 3. Filtro de Horas de Estudo (Barra deslizante)
     estudo_min = float(df["Study_Hours"].min())
     estudo_max = float(df["Study_Hours"].max())
     estudo_selecionado = st.sidebar.slider(
@@ -55,7 +51,6 @@ try:
         value=(estudo_min, estudo_max)
     )
 
-    # Aplica TODOS os filtros na tabela ao mesmo tempo
     df_filtrado = df[
         (df["genero"].isin(genero_selecionado)) &
         (df["Sleep_Duration"] >= sono_selecionado[0]) & 
@@ -83,21 +78,22 @@ try:
         c1, c2 = st.columns(2)
 
         with c1:
-            st.subheader("1. Sono vs. Depressão")
-            fig_sono = px.box(
-                df_filtrado, 
+            st.subheader("1. Média de Sono por Depressão")
+            st.markdown("*(Gráfico de Colunas: Ideal para comparar categorias)*")
+            df_sono = df_filtrado.groupby("Depression")["Sleep_Duration"].mean().reset_index()
+            fig_sono = px.bar(
+                df_sono, 
                 x="Depression", 
                 y="Sleep_Duration",
                 color="Depression",
-                labels={
-                    "Sleep_Duration": "Horas de Sono", 
-                    "Depression": "Sintomas Depressivos"
-                }
+                text_auto=".1f",
+                labels={"Sleep_Duration": "Horas de Sono (Média)", "Depression": "Sintomas Depressivos"}
             )
             st.plotly_chart(fig_sono, use_container_width=True)
 
         with c2:
             st.subheader("2. Estresse Médio por Gênero")
+            st.markdown("*(Gráfico de Colunas: Ideal para comparar categorias)*")
             df_estresse = df_filtrado.groupby("genero")["nivel_estresse"].mean().reset_index()
             fig_estresse = px.bar(
                 df_estresse, 
@@ -105,10 +101,7 @@ try:
                 y="nivel_estresse",
                 color="genero",
                 text_auto=".1f",
-                labels={
-                    "genero": "Gênero", 
-                    "nivel_estresse": "Estresse Médio"
-                }
+                labels={"genero": "Gênero", "nivel_estresse": "Estresse Médio"}
             )
             st.plotly_chart(fig_estresse, use_container_width=True)
 
@@ -119,31 +112,26 @@ try:
 
         with c3:
             st.subheader("3. Estudo vs. Desempenho (Notas)")
-            fig_estudo = px.scatter(
+            st.markdown("*(Mapa de Calor: Resolve a sobreposição de milhares de pontos)*")
+            fig_estudo = px.density_heatmap(
                 df_filtrado,
                 x="Study_Hours",
                 y="CGPA",
-                color="genero",
-                labels={
-                    "Study_Hours": "Horas de Estudo Diárias", 
-                    "CGPA": "Nota (CGPA)",
-                    "genero": "Gênero"
-                }
+                color_continuous_scale="Blues", # Cores suaves
+                labels={"Study_Hours": "Horas de Estudo Diárias", "CGPA": "Nota (CGPA)"}
             )
             st.plotly_chart(fig_estudo, use_container_width=True)
 
         with c4:
             st.subheader("4. Redes Sociais vs. Estresse")
-            fig_redes = px.scatter(
-                df_filtrado,
+            st.markdown("*(Gráfico de Linha: Mostra a progressão do estresse)*")
+            df_redes = df_filtrado.groupby("Social_Media_Hours")["nivel_estresse"].mean().reset_index()
+            fig_redes = px.line(
+                df_redes,
                 x="Social_Media_Hours",
                 y="nivel_estresse",
-                color="Depression",
-                labels={
-                    "Social_Media_Hours": "Horas em Redes Sociais", 
-                    "nivel_estresse": "Nível de Estresse",
-                    "Depression": "Sintomas Depressivos"
-                }
+                markers=True, # Adiciona bolinhas nos pontos
+                labels={"Social_Media_Hours": "Horas em Redes Sociais", "nivel_estresse": "Média de Estresse"}
             )
             st.plotly_chart(fig_redes, use_container_width=True)
     else:
