@@ -19,6 +19,9 @@ def carregar_dados():
     if "genero" in df.columns:
         df["genero"] = df["genero"].replace({"Female": "Feminino", "Male": "Masculino", "Other": "Outros"})
         
+    if "atividade_fisica" in df.columns:
+        df["atividade_fisica"] = df["atividade_fisica"].replace({True: "Sim", False: "Não", "True": "Sim", "False": "Não", 1: "Sim", 0: "Não"})
+        
     return df
 
 try:
@@ -73,67 +76,94 @@ try:
 
     st.divider()
 
-    # --- PRIMEIRA LINHA DE GRÁFICOS ---
     if not df_filtrado.empty:
+        # --- PRIMEIRA LINHA DE GRÁFICOS (1 e 2) ---
         c1, c2 = st.columns(2)
 
         with c1:
-            st.subheader("1. Média de Sono por Idade e Depressão")
-            df_sono_linha = df_filtrado.groupby(['Age', 'Depression'])['Sleep_Duration'].mean().reset_index()
-            fig_sono = px.line(
-                df_sono_linha, 
-                x="Age", 
-                y="Sleep_Duration",
-                color="Depression",
-                markers=True,
-                labels={
-                    "Age": "Idade do Estudante",
-                    "Sleep_Duration": "Horas de Sono (Média)", 
-                    "Depression": "Sintomas Depressivos"
-                }
-            )
-            st.plotly_chart(fig_sono, use_container_width=True)
-
-        with c2:
-            st.subheader("2. Estresse Médio por Gênero")
-            df_estresse = df_filtrado.groupby("genero")["nivel_estresse"].mean().reset_index()
-            fig_estresse = px.bar(
-                df_estresse, 
-                x="genero", 
-                y="nivel_estresse",
-                color="genero",
-                text_auto=".1f",
-                labels={"genero": "Gênero", "nivel_estresse": "Estresse Médio"}
-            )
-            st.plotly_chart(fig_estresse, use_container_width=True)
-
-        st.divider()
-
-        # --- SEGUNDA LINHA DE GRÁFICOS ---
-        c3, c4 = st.columns(2)
-
-        with c3:
-            st.subheader("3. Estudo vs. Desempenho (Notas)")
-            fig_estudo = px.density_heatmap(
+            st.subheader("1. Horas de Estudo x Notas")
+            fig_estudo_notas = px.scatter(
                 df_filtrado,
                 x="Study_Hours",
                 y="CGPA",
-                color_continuous_scale="Blues",
-                labels={"Study_Hours": "Horas de Estudo Diárias", "CGPA": "Nota (CGPA)"}
+                color="genero",
+                opacity=0.4,
+                labels={
+                    "Study_Hours": "Horas de Estudo Diárias", 
+                    "CGPA": "Nota (CGPA)",
+                    "genero": "Gênero"
+                }
             )
-            st.plotly_chart(fig_estudo, use_container_width=True)
+            st.plotly_chart(fig_estudo_notas, use_container_width=True)
+
+        with c2:
+            st.subheader("2. Atividade Física x Depressão")
+            df_ativ = df_filtrado.groupby(["atividade_fisica", "Depression"]).size().reset_index(name="Quantidade")
+            fig_ativ = px.bar(
+                df_ativ,
+                x="atividade_fisica",
+                y="Quantidade",
+                color="Depression",
+                barmode="group",
+                text_auto=True,
+                labels={
+                    "atividade_fisica": "Pratica Atividade Física",
+                    "Quantidade": "Total de Estudantes",
+                    "Depression": "Sintomas Depressivos"
+                }
+            )
+            st.plotly_chart(fig_ativ, use_container_width=True)
+
+        st.divider()
+
+        # --- SEGUNDA LINHA DE GRÁFICOS (3 e 4) ---
+        c3, c4 = st.columns(2)
+
+        with c3:
+            st.subheader("3. Redes Sociais x Notas")
+            df_redes_notas = df_filtrado.groupby("Social_Media_Hours")["CGPA"].mean().reset_index()
+            fig_redes_notas = px.line(
+                df_redes_notas,
+                x="Social_Media_Hours",
+                y="CGPA",
+                markers=True,
+                labels={
+                    "Social_Media_Hours": "Horas em Redes Sociais",
+                    "CGPA": "Média da Nota (CGPA)"
+                }
+            )
+            st.plotly_chart(fig_redes_notas, use_container_width=True)
 
         with c4:
-            st.subheader("4. Redes Sociais vs. Estresse")
-            df_redes = df_filtrado.groupby("Social_Media_Hours")["nivel_estresse"].mean().reset_index()
-            fig_redes = px.line(
-                df_redes,
-                x="Social_Media_Hours",
-                y="nivel_estresse",
-                markers=True,
-                labels={"Social_Media_Hours": "Horas em Redes Sociais", "nivel_estresse": "Média de Estresse"}
+            st.subheader("4. Redes Sociais x Depressão")
+            fig_redes_dep = px.box(
+                df_filtrado,
+                x="Depression",
+                y="Social_Media_Hours",
+                color="Depression",
+                labels={
+                    "Depression": "Sintomas Depressivos",
+                    "Social_Media_Hours": "Horas em Redes Sociais"
+                }
             )
-            st.plotly_chart(fig_redes, use_container_width=True)
+            st.plotly_chart(fig_redes_dep, use_container_width=True)
+
+        st.divider()
+
+        # --- TERCEIRA LINHA DE GRÁFICO (5) ---
+        st.subheader("5. Notas x Estresse")
+        fig_notas_estresse = px.density_heatmap(
+            df_filtrado,
+            x="CGPA",
+            y="nivel_estresse",
+            color_continuous_scale="Blues",
+            labels={
+                "CGPA": "Nota (CGPA)",
+                "nivel_estresse": "Nível de Estresse"
+            }
+        )
+        st.plotly_chart(fig_notas_estresse, use_container_width=True)
+
     else:
         st.warning("Nenhum dado encontrado para os filtros selecionados. Ajuste os filtros na barra lateral.")
 
