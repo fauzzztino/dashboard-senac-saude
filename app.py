@@ -8,10 +8,21 @@ st.set_page_config(page_title="Saúde Mental - Universitários", layout="wide")
 st.title("🧠 Dashboard: Saúde Mental e Hábitos de Universitários")
 st.markdown("Análise dos fatores associados à depressão, estresse e rotina acadêmica.")
 
-# Função que carrega o arquivo CSV tratado
+# Carrega a base de dados
 @st.cache_data
 def carregar_dados():
-    return pd.read_csv("base_tratada.csv")
+    df = pd.read_csv("base_tratada.csv")
+    
+    # TRADUÇÕES DOS DADOS
+    # Traduz a coluna de Depressão (True/False para Sim/Não)
+    if "Depression" in df.columns:
+        df["Depression"] = df["Depression"].replace({True: "Sim", False: "Não", "True": "Sim", "False": "Não"})
+    
+    # Traduz a coluna de Gênero (Inglês para Português)
+    if "genero" in df.columns:
+        df["genero"] = df["genero"].replace({"Female": "Feminino", "Male": "Masculino", "Other": "Outros"})
+        
+    return df
 
 try:
     df = carregar_dados()
@@ -70,4 +81,4 @@ try:
         st.plotly_chart(fig_estresse, use_container_width=True)
 
 except FileNotFoundError:
-    st.error("⚠️ ERRO: O arquivo 'base_tratada.csv' não foi encontrado. Verifique se ele está no GitHub com este nome exato.")
+    st.error("⚠️ ERRO: O arquivo 'base_tratada.csv' não foi encontrado.")
