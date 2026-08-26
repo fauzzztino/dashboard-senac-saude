@@ -22,9 +22,6 @@ def carregar_dados():
     if "genero" in df.columns:
         df["genero"] = df["genero"].replace({"Female": "Feminino", "Male": "Masculino", "Other": "Outros"})
         
-    if "atividade_fisica" in df.columns:
-        df["atividade_fisica"] = df["atividade_fisica"].replace({True: "Sim", False: "Não", "True": "Sim", "False": "Não", 1: "Sim", 0: "Não"})
-        
     return df
 
 try:
@@ -113,23 +110,21 @@ try:
             st.plotly_chart(fig_estudo_notas, use_container_width=True)
 
         with c2:
-            st.subheader("2. Atividade Física x Depressão")
-            df_ativ = df_filtrado.groupby(["atividade_fisica", "Depression"]).size().reset_index(name="Quantidade")
-            fig_ativ = px.bar(
-                df_ativ,
-                x="atividade_fisica",
-                y="Quantidade",
+            st.subheader("2. Minutos de Atividade Física x Depressão")
+            # Verifica se o nome da coluna de minutos de atividade existe na base, se não usa a genérica
+            coluna_ativ = "Physical_Activity_Minutes" if "Physical_Activity_Minutes" in df_filtrado.columns else "atividade_fisica"
+            
+            fig_ativ = px.box(
+                df_filtrado,
+                x="Depression",
+                y=coluna_ativ,
                 color="Depression",
-                barmode="group",
-                text_auto=True,
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "atividade_fisica": "Pratica Atividade Física",
-                    "Quantidade": "Total de Estudantes",
-                    "Depression": "Sintomas Depressivos"
+                    "Depression": "Sintomas Depressivos",
+                    coluna_ativ: "Minutos de Atividade Física por Semana"
                 }
             )
-            fig_ativ.update_traces(texttemplate='%{y:.0f}', textposition='outside')
             st.plotly_chart(fig_ativ, use_container_width=True)
 
         st.divider()
@@ -179,7 +174,7 @@ try:
             df_filtrado,
             x="CGPA",
             y="nivel_estresse",
-            color_continuous_scale="Viridis", # Cores de altíssimo contraste térmico (roxo, verde e amarelo)
+            color_continuous_scale="Viridis",
             labels={
                 "CGPA": "Nota (CGPA)",
                 "nivel_estresse": "Nível de Estresse"
