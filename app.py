@@ -30,7 +30,6 @@ try:
     # --- FILTROS (BARRA LATERAL) ---
     st.sidebar.header("⚙️ Filtros do Painel")
     
-    # Restringe as opções de gênero estritamente a Masculino e Feminino (se existirem na base)
     opcoes_genero_disponiveis = [g for g in ["Masculino", "Feminino"] if g in df["genero"].dropna().unique()]
     if not opcoes_genero_disponiveis:
         opcoes_genero_disponiveis = list(df["genero"].dropna().unique())
@@ -99,15 +98,19 @@ try:
 
         with c1:
             st.subheader("1. Horas de Estudo x Notas")
-            df_g1 = df_filtrado.groupby("Study_Hours")["CGPA"].mean().reset_index()
-            df_g1["CGPA"] = df_g1["CGPA"].round(0)
+            # Arredonda as horas de estudo para agrupar as barras e evitar poluição visual
+            df_g1 = df_filtrado.copy()
+            df_g1["Study_Hours_Group"] = df_g1["Study_Hours"].round(0)
+            df_g1 = df_g1.groupby("Study_Hours_Group")["CGPA"].mean().reset_index()
+            df_g1["CGPA"] = df_g1["CGPA"].round(1)
+            
             fig1 = px.bar(
                 df_g1,
-                x="Study_Hours",
+                x="Study_Hours_Group",
                 y="CGPA",
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Study_Hours": "Horas de Estudo Diárias", 
+                    "Study_Hours_Group": "Horas de Estudo Diárias (Arredondadas)", 
                     "CGPA": "Média da Nota (CGPA)"
                 }
             )
@@ -117,6 +120,8 @@ try:
             st.subheader("2. Atividade Física x Depressão")
             coluna_ativ = "Physical_Activity_Minutes" if "Physical_Activity_Minutes" in df_filtrado.columns else "atividade_fisica"
             df_g2 = df_filtrado.groupby("Depression")[coluna_ativ].mean().reset_index()
+            df_g2[coluna_ativ] = df_g2[coluna_ativ].round(0)
+            
             fig2 = px.bar(
                 df_g2,
                 x="Depression",
@@ -137,15 +142,19 @@ try:
 
         with c3:
             st.subheader("3. Redes Sociais x Notas")
-            df_g3 = df_filtrado.groupby("Social_Media_Hours")["CGPA"].mean().reset_index()
-            df_g3["CGPA"] = df_g3["CGPA"].round(0)
+            # Arredonda as horas de redes sociais para reduzir o número de barras
+            df_g3 = df_filtrado.copy()
+            df_g3["Social_Group"] = df_g3["Social_Media_Hours"].round(0)
+            df_g3 = df_g3.groupby("Social_Group")["CGPA"].mean().reset_index()
+            df_g3["CGPA"] = df_g3["CGPA"].round(1)
+            
             fig3 = px.bar(
                 df_g3,
-                x="Social_Media_Hours",
+                x="Social_Group",
                 y="CGPA",
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Social_Media_Hours": "Horas em Redes Sociais",
+                    "Social_Group": "Horas em Redes Sociais (Arredondadas)",
                     "CGPA": "Média da Nota (CGPA)"
                 }
             )
@@ -153,16 +162,21 @@ try:
 
         with c4:
             st.subheader("4. Redes Sociais, Sono e Depressão")
-            df_g4 = df_filtrado.groupby(["Social_Media_Hours", "Depression"])["Sleep_Duration"].mean().reset_index()
+            # Agrupa as redes sociais em blocos inteiros para a linha não ficar picotada
+            df_g4 = df_filtrado.copy()
+            df_g4["Social_Group"] = df_g4["Social_Media_Hours"].round(0)
+            df_g4 = df_g4.groupby(["Social_Group", "Depression"])["Sleep_Duration"].mean().reset_index()
+            df_g4["Sleep_Duration"] = df_g4["Sleep_Duration"].round(1)
+            
             fig4 = px.line(
                 df_g4,
-                x="Social_Media_Hours",
+                x="Social_Group",
                 y="Sleep_Duration",
                 color="Depression",
                 markers=True,
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Social_Media_Hours": "Horas em Redes Sociais",
+                    "Social_Group": "Horas em Redes Sociais",
                     "Sleep_Duration": "Média de Horas de Sono",
                     "Depression": "Sintomas Depressivos"
                 }
@@ -173,14 +187,19 @@ try:
 
         # --- TERCEIRA LINHA DE GRÁFICO (5) ---
         st.subheader("5. Notas x Estresse")
-        df_g5 = df_filtrado.groupby("CGPA")["nivel_estresse"].mean().reset_index()
+        # Arredonda as notas para agrupar as barras do estresse de forma limpa
+        df_g5 = df_filtrado.copy()
+        df_g5["CGPA_Group"] = df_g5["CGPA"].round(1)
+        df_g5 = df_g5.groupby("CGPA_Group")["nivel_estresse"].mean().reset_index()
+        df_g5["nivel_estresse"] = df_g5["nivel_estresse"].round(0)
+        
         fig5 = px.bar(
             df_g5,
-            x="CGPA",
+            x="CGPA_Group",
             y="nivel_estresse",
             color_discrete_sequence=CORES_ALTO_CONTRASTE,
             labels={
-                "CGPA": "Nota (CGPA)",
+                "CGPA_Group": "Nota (CGPA Arredondada)",
                 "nivel_estresse": "Nível Médio de Estresse"
             }
         )
