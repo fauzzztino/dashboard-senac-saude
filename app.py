@@ -96,11 +96,10 @@ try:
             st.subheader("1. Horas de Estudo x Notas")
             df_g1 = df_filtrado.groupby("Study_Hours")["CGPA"].mean().reset_index()
             df_g1["CGPA"] = df_g1["CGPA"].round(0)
-            fig1 = px.line(
+            fig1 = px.bar(
                 df_g1,
                 x="Study_Hours",
                 y="CGPA",
-                markers=True,
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
                     "Study_Hours": "Horas de Estudo Diárias", 
@@ -113,11 +112,11 @@ try:
             st.subheader("2. Atividade Física x Depressão")
             coluna_ativ = "Physical_Activity_Minutes" if "Physical_Activity_Minutes" in df_filtrado.columns else "atividade_fisica"
             df_g2 = df_filtrado.groupby("Depression")[coluna_ativ].mean().reset_index()
-            fig2 = px.line(
+            fig2 = px.bar(
                 df_g2,
                 x="Depression",
                 y=coluna_ativ,
-                markers=True,
+                color="Depression",
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
                     "Depression": "Sintomas Depressivos",
@@ -135,11 +134,10 @@ try:
             st.subheader("3. Redes Sociais x Notas")
             df_g3 = df_filtrado.groupby("Social_Media_Hours")["CGPA"].mean().reset_index()
             df_g3["CGPA"] = df_g3["CGPA"].round(0)
-            fig3 = px.line(
+            fig3 = px.bar(
                 df_g3,
                 x="Social_Media_Hours",
                 y="CGPA",
-                markers=True,
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
                     "Social_Media_Hours": "Horas em Redes Sociais",
@@ -171,11 +169,10 @@ try:
         # --- TERCEIRA LINHA DE GRÁFICO (5) ---
         st.subheader("5. Notas x Estresse")
         df_g5 = df_filtrado.groupby("CGPA")["nivel_estresse"].mean().reset_index()
-        fig5 = px.line(
+        fig5 = px.bar(
             df_g5,
             x="CGPA",
             y="nivel_estresse",
-            markers=True,
             color_discrete_sequence=CORES_ALTO_CONTRASTE,
             labels={
                 "CGPA": "Nota (CGPA)",
