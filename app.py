@@ -6,7 +6,7 @@ import plotly.express as px
 st.set_page_config(page_title="Saúde Mental - Universitários", layout="wide")
 
 st.title("🧠 Dashboard: Saúde Mental e Hábitos de Universitários")
-st.markdown("Análise dos fatores associados à depressão, estresse e rotina acadêmica.")
+st.markdown("Análise detalhada dos fatores associados ao estresse e à depressão acadêmica.")
 
 # Paleta de cores de alto contraste padrão
 CORES_ALTO_CONTRASTE = px.colors.qualitative.Bold
@@ -97,41 +97,40 @@ try:
         c1, c2 = st.columns(2)
 
         with c1:
-            st.subheader("1. Horas de Estudo x Notas")
-            # Agrupa as horas de estudo para mostrar a média limpa em formato de linha de tendência
+            st.subheader("1. Notas x Estresse")
             df_g1 = df_filtrado.copy()
-            df_g1["Study_Group"] = df_g1["Study_Hours"].round(0)
-            df_g1 = df_g1.groupby("Study_Group")["CGPA"].mean().reset_index()
-            df_g1["CGPA"] = df_g1["CGPA"].round(1)
+            df_g1["CGPA_Group"] = df_g1["CGPA"].round(1)
+            df_g1 = df_g1.groupby("CGPA_Group")["nivel_estresse"].mean().reset_index()
+            df_g1["nivel_estresse"] = df_g1["nivel_estresse"].round(0)
             
-            fig1 = px.line(
+            fig1 = px.bar(
                 df_g1,
-                x="Study_Group",
-                y="CGPA",
-                markers=True,
+                x="CGPA_Group",
+                y="nivel_estresse",
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Study_Group": "Horas de Estudo Diárias", 
-                    "CGPA": "Média da Nota (CGPA)"
+                    "CGPA_Group": "Nota (CGPA)", 
+                    "nivel_estresse": "Nível Médio de Estresse"
                 }
             )
             st.plotly_chart(fig1, use_container_width=True)
 
         with c2:
-            st.subheader("2. Atividade Física x Depressão")
-            coluna_ativ = "Physical_Activity_Minutes" if "Physical_Activity_Minutes" in df_filtrado.columns else "atividade_fisica"
-            df_g2 = df_filtrado.groupby("Depression")[coluna_ativ].mean().reset_index()
-            df_g2[coluna_ativ] = df_g2[coluna_ativ].round(0)
+            st.subheader("2. Sono x Estresse")
+            df_g2 = df_filtrado.copy()
+            df_g2["Sono_Group"] = df_g2["Sleep_Duration"].round(0)
+            df_g2 = df_g2.groupby("Sono_Group")["nivel_estresse"].mean().reset_index()
+            df_g2["nivel_estresse"] = df_g2["nivel_estresse"].round(0)
             
-            fig2 = px.bar(
+            fig2 = px.line(
                 df_g2,
-                x="Depression",
-                y=coluna_ativ,
-                color="Depression",
+                x="Sono_Group",
+                y="nivel_estresse",
+                markers=True,
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Depression": "Sintomas Depressivos",
-                    coluna_ativ: "Média de Atividade Física (Minutos)"
+                    "Sono_Group": "Horas de Sono",
+                    "nivel_estresse": "Nível Médio de Estresse"
                 }
             )
             st.plotly_chart(fig2, use_container_width=True)
@@ -142,69 +141,95 @@ try:
         c3, c4 = st.columns(2)
 
         with c3:
-            st.subheader("3. Redes Sociais x Notas")
-            df_g3 = df_filtrado.copy()
-            df_g3["Social_Group"] = df_g3["Social_Media_Hours"].round(0)
-            df_g3 = df_g3.groupby("Social_Group")["CGPA"].mean().reset_index()
-            df_g3["CGPA"] = df_g3["CGPA"].round(1)
+            st.subheader("3. Depressão x Estresse")
+            df_g3 = df_filtrado.groupby("Depression")["nivel_estresse"].mean().reset_index()
+            df_g3["nivel_estresse"] = df_g3["nivel_estresse"].round(0)
             
-            fig3 = px.line(
+            fig3 = px.bar(
                 df_g3,
-                x="Social_Group",
-                y="CGPA",
-                markers=True,
+                x="Depression",
+                y="nivel_estresse",
+                color="Depression",
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Social_Group": "Horas em Redes Sociais",
-                    "CGPA": "Média da Nota (CGPA)"
+                    "Depression": "Sintomas Depressivos",
+                    "nivel_estresse": "Nível Médio de Estresse"
                 }
             )
             st.plotly_chart(fig3, use_container_width=True)
 
         with c4:
-            st.subheader("4. Redes Sociais, Sono e Depressão")
-            # Agrupa as redes sociais e depressão para mostrar linhas limpas de média de sono
+            st.subheader("4. Atividade Física x Estresse")
+            coluna_ativ = "Physical_Activity_Minutes" if "Physical_Activity_Minutes" in df_filtrado.columns else "atividade_fisica"
             df_g4 = df_filtrado.copy()
-            df_g4["Social_Group"] = df_g4["Social_Media_Hours"].round(0)
-            df_g4 = df_g4.groupby(["Social_Group", "Depression"])["Sleep_Duration"].mean().reset_index()
-            df_g4["Sleep_Duration"] = df_g4["Sleep_Duration"].round(1)
+            # Se for coluna de minutos, agrupa em faixas de 30 min para limpar o gráfico
+            if coluna_ativ in df_g4.columns and df_g4[coluna_ativ].dtype in ['float64', 'int64']:
+                df_g4["Ativ_Group"] = (df_g4[coluna_ativ] // 30) * 30
+                eixo_x = "Ativ_Group"
+                label_x = "Atividade Física (Minutos - Agrupados)"
+            else:
+                eixo_x = coluna_ativ
+                label_x = "Pratica Atividade Física"
+                
+            df_g4 = df_g4.groupby(eixo_x)["nivel_estresse"].mean().reset_index()
+            df_g4["nivel_estresse"] = df_g4["nivel_estresse"].round(0)
             
-            fig4 = px.line(
+            fig4 = px.bar(
                 df_g4,
-                x="Social_Group",
-                y="Sleep_Duration",
-                color="Depression",
-                markers=True,
+                x=eixo_x,
+                y="nivel_estresse",
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Social_Group": "Horas em Redes Sociais",
-                    "Sleep_Duration": "Média de Horas de Sono",
-                    "Depression": "Sintomas Depressivos"
+                    eixo_x: label_x,
+                    "nivel_estresse": "Nível Médio de Estresse"
                 }
             )
             st.plotly_chart(fig4, use_container_width=True)
 
         st.divider()
 
-        # --- TERCEIRA LINHA DE GRÁFICO (5) ---
-        st.subheader("5. Notas x Estresse")
-        # Substitui o box plot pesado por um gráfico de colunas limpo da média de estresse por nota
-        df_g5 = df_filtrado.copy()
-        df_g5["CGPA_Group"] = df_g5["CGPA"].round(1)
-        df_g5 = df_g5.groupby("CGPA_Group")["nivel_estresse"].mean().reset_index()
-        df_g5["nivel_estresse"] = df_g5["nivel_estresse"].round(0)
-        
-        fig5 = px.bar(
-            df_g5,
-            x="CGPA_Group",
-            y="nivel_estresse",
-            color_discrete_sequence=CORES_ALTO_CONTRASTE,
-            labels={
-                "CGPA_Group": "Nota (CGPA Arredondada)",
-                "nivel_estresse": "Nível Médio de Estresse"
-            }
-        )
-        st.plotly_chart(fig5, use_container_width=True)
+        # --- TERCEIRA LINHA DE GRÁFICOS (5 e 6) ---
+        c5, c6 = st.columns(2)
+
+        with c5:
+            st.subheader("5. Redes Sociais x Estresse")
+            df_g5 = df_filtrado.copy()
+            df_g5["Social_Group"] = df_g5["Social_Media_Hours"].round(0)
+            df_g5 = df_g5.groupby("Social_Group")["nivel_estresse"].mean().reset_index()
+            df_g5["nivel_estresse"] = df_g5["nivel_estresse"].round(0)
+            
+            fig5 = px.line(
+                df_g5,
+                x="Social_Group",
+                y="nivel_estresse",
+                markers=True,
+                color_discrete_sequence=CORES_ALTO_CONTRASTE,
+                labels={
+                    "Social_Group": "Horas em Redes Sociais",
+                    "nivel_estresse": "Nível Médio de Estresse"
+                }
+            )
+            st.plotly_chart(fig5, use_container_width=True)
+
+        with c6:
+            st.subheader("6. Redes Sociais x Depressão")
+            df_g6 = df_filtrado.copy()
+            df_g6["Social_Group"] = df_g6["Social_Media_Hours"].round(0)
+            df_g6 = df_g6.groupby("Depression")["Social_Group"].mean().reset_index()
+            df_g6["Social_Group"] = df_g6["Social_Group"].round(1)
+            
+            fig6 = px.bar(
+                df_g6,
+                x="Depression",
+                y="Social_Group",
+                color="Depression",
+                color_discrete_sequence=CORES_ALTO_CONTRASTE,
+                labels={
+                    "Depression": "Sintomas Depressivos",
+                    "Social_Group": "Média de Horas em Redes Sociais"
+                }
+            )
+            st.plotly_chart(fig6, use_container_width=True)
 
     else:
         st.warning("Nenhum dado encontrado para os filtros selecionados. Ajuste os filtros na barra lateral.")
