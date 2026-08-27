@@ -30,10 +30,15 @@ try:
     # --- FILTROS (BARRA LATERAL) ---
     st.sidebar.header("⚙️ Filtros do Painel")
     
+    # Restringe as opções de gênero estritamente a Masculino e Feminino (se existirem na base)
+    opcoes_genero_disponiveis = [g for g in ["Masculino", "Feminino"] if g in df["genero"].dropna().unique()]
+    if not opcoes_genero_disponiveis:
+        opcoes_genero_disponiveis = list(df["genero"].dropna().unique())
+
     genero_selecionado = st.sidebar.multiselect(
         "Selecione o Gênero:",
-        options=df["genero"].dropna().unique(),
-        default=df["genero"].dropna().unique()
+        options=opcoes_genero_disponiveis,
+        default=opcoes_genero_disponiveis
     )
 
     sono_min = float(df["Sleep_Duration"].min())
