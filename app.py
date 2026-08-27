@@ -98,16 +98,21 @@ try:
 
         with c1:
             st.subheader("1. Horas de Estudo x Notas")
-            # Gráfico de Dispersão (Ideal para duas variáveis contínuas)
-            fig1 = px.scatter(
-                df_filtrado,
-                x="Study_Hours",
+            # Agrupa as horas de estudo para mostrar a média limpa em formato de linha de tendência
+            df_g1 = df_filtrado.copy()
+            df_g1["Study_Group"] = df_g1["Study_Hours"].round(0)
+            df_g1 = df_g1.groupby("Study_Group")["CGPA"].mean().reset_index()
+            df_g1["CGPA"] = df_g1["CGPA"].round(1)
+            
+            fig1 = px.line(
+                df_g1,
+                x="Study_Group",
                 y="CGPA",
-                opacity=0.5,
+                markers=True,
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Study_Hours": "Horas de Estudo Diárias", 
-                    "CGPA": "Nota (CGPA)"
+                    "Study_Group": "Horas de Estudo Diárias", 
+                    "CGPA": "Média da Nota (CGPA)"
                 }
             )
             st.plotly_chart(fig1, use_container_width=True)
@@ -118,7 +123,6 @@ try:
             df_g2 = df_filtrado.groupby("Depression")[coluna_ativ].mean().reset_index()
             df_g2[coluna_ativ] = df_g2[coluna_ativ].round(0)
             
-            # Gráfico de Colunas (Ideal para comparar médias entre categorias)
             fig2 = px.bar(
                 df_g2,
                 x="Depression",
@@ -139,18 +143,19 @@ try:
 
         with c3:
             st.subheader("3. Redes Sociais x Notas")
-            df_g3 = df_filtrado.groupby("Social_Media_Hours")["CGPA"].mean().reset_index()
+            df_g3 = df_filtrado.copy()
+            df_g3["Social_Group"] = df_g3["Social_Media_Hours"].round(0)
+            df_g3 = df_g3.groupby("Social_Group")["CGPA"].mean().reset_index()
             df_g3["CGPA"] = df_g3["CGPA"].round(1)
             
-            # Gráfico de Linha (Ideal para tendência/progressão)
             fig3 = px.line(
                 df_g3,
-                x="Social_Media_Hours",
+                x="Social_Group",
                 y="CGPA",
                 markers=True,
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Social_Media_Hours": "Horas em Redes Sociais",
+                    "Social_Group": "Horas em Redes Sociais",
                     "CGPA": "Média da Nota (CGPA)"
                 }
             )
@@ -158,17 +163,22 @@ try:
 
         with c4:
             st.subheader("4. Redes Sociais, Sono e Depressão")
-            # Gráfico de Dispersão Colorido (Ideal para 3 variáveis simultâneas)
-            fig4 = px.scatter(
-                df_filtrado,
-                x="Social_Media_Hours",
+            # Agrupa as redes sociais e depressão para mostrar linhas limpas de média de sono
+            df_g4 = df_filtrado.copy()
+            df_g4["Social_Group"] = df_g4["Social_Media_Hours"].round(0)
+            df_g4 = df_g4.groupby(["Social_Group", "Depression"])["Sleep_Duration"].mean().reset_index()
+            df_g4["Sleep_Duration"] = df_g4["Sleep_Duration"].round(1)
+            
+            fig4 = px.line(
+                df_g4,
+                x="Social_Group",
                 y="Sleep_Duration",
                 color="Depression",
-                opacity=0.6,
+                markers=True,
                 color_discrete_sequence=CORES_ALTO_CONTRASTE,
                 labels={
-                    "Social_Media_Hours": "Horas em Redes Sociais",
-                    "Sleep_Duration": "Horas de Sono",
+                    "Social_Group": "Horas em Redes Sociais",
+                    "Sleep_Duration": "Média de Horas de Sono",
                     "Depression": "Sintomas Depressivos"
                 }
             )
@@ -178,15 +188,20 @@ try:
 
         # --- TERCEIRA LINHA DE GRÁFICO (5) ---
         st.subheader("5. Notas x Estresse")
-        # Gráfico de Caixa / Box Plot (Ideal para distribuição estatística por faixa de nota)
-        fig5 = px.box(
-            df_filtrado,
-            x="CGPA",
+        # Substitui o box plot pesado por um gráfico de colunas limpo da média de estresse por nota
+        df_g5 = df_filtrado.copy()
+        df_g5["CGPA_Group"] = df_g5["CGPA"].round(1)
+        df_g5 = df_g5.groupby("CGPA_Group")["nivel_estresse"].mean().reset_index()
+        df_g5["nivel_estresse"] = df_g5["nivel_estresse"].round(0)
+        
+        fig5 = px.bar(
+            df_g5,
+            x="CGPA_Group",
             y="nivel_estresse",
             color_discrete_sequence=CORES_ALTO_CONTRASTE,
             labels={
-                "CGPA": "Nota (CGPA)",
-                "nivel_estresse": "Nível de Estresse"
+                "CGPA_Group": "Nota (CGPA Arredondada)",
+                "nivel_estresse": "Nível Médio de Estresse"
             }
         )
         st.plotly_chart(fig5, use_container_width=True)
