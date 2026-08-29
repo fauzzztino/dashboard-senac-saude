@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import matplotlib.pyplot as plt  # Adicionado para rodar o seu código
 
 st.set_page_config(page_title="Saúde Mental - Universitários", layout="wide")
 st.title("🧠 Dashboard: Redes Sociais x Estresse")
@@ -48,9 +49,9 @@ try:
     c3.metric("Média Redes Sociais", f"{dff['Social_Media_Hours'].mean():.1f} h" if not dff.empty else "0 h")
     st.divider()
 
-    # --- GRÁFICO ---
+    # --- GRÁFICOS ---
     if not dff.empty:
-        # Pega até 100 amostras e agrupa os dados em apenas 2 linhas de código
+        # 1. Gráfico Plotly Original (Redes Sociais x Estresse)
         df_plot = dff.sample(min(100, len(dff)), random_state=42)
         df_plot = df_plot.groupby(df_plot["Social_Media_Hours"].round(0))["nivel_estresse"].mean().round(0).reset_index()
 
@@ -61,6 +62,43 @@ try:
         )
         fig.update_layout(xaxis_title_font=dict(size=16), yaxis_title_font=dict(size=16))
         st.plotly_chart(fig, use_container_width=True)
+        
+        st.divider()
+
+        # 2. Seu código integrado (Matplotlib) usando dff (dados filtrados)
+        sem_depressao = dff[dff["Depression"] == "Não"]
+        com_depressao = dff[dff["Depression"] == "Sim"]
+        
+        # Renomeia os índices automaticamente para evitar erros de ordem
+        quantidade = dff["Depression"].value_counts().rename({"Não": "Sem depressão", "Sim": "Com depressão"})
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("Distribuição de estudantes por depressão")
+            fig_pie, ax_pie = plt.subplots(figsize=(8, 6))
+            total = quantidade.sum()
+
+            ax_pie.pie(
+                quantidade,
+                labels=quantidade.index,
+                autopct=lambda pct: f"{pct:.1f}%\n({int(pct * total / 100):,})"
+            )
+            st.pyplot(fig_pie)
+
+        with col2:
+            st.subheader("Social Media x Depression")
+            # Agrupa e renomeia para bater com o padrão de texto
+            media = dff.groupby("Depression")["Social_Media_Hours"].mean().rename({"Não": "Sem depressão", "Sim": "Com depressão"})
+            
+            fig_bar, ax_bar = plt.subplots(figsize=(8, 6))
+            media.plot.bar(ax=ax_bar, color=["#2ca02c", "#d62728"]) # Adicionei cores para melhorar o contraste
+            ax_bar.set_title("Média de uso de redes sociais")
+            ax_bar.set_ylabel("Horas")
+            plt.xticks(rotation=0) # Deixa o texto do eixo X reto
+            
+            st.pyplot(fig_bar)
+
     else:
         st.warning("Nenhum dado encontrado para os filtros selecionados.")
 
