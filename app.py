@@ -82,12 +82,7 @@ try:
         ax1.set_xticks(range(num_amostras))
         ax1.set_xticklabels(labels_x, rotation=0)
         
-        for bar in barras:
-            if bar.get_height() > 0: 
-                # Coloca a nota de estresse exata de cada aluno dentro da barra
-                ax1.annotate(f"{bar.get_height():.1f}", 
-                                (bar.get_x() + bar.get_width() / 2, bar.get_height() / 2), 
-                                ha='center', va='center', color='white', fontsize=12, fontweight='bold')
+        # Os números dentro das barras do gráfico 1 foram removidos aqui!
         
         st.pyplot(fig1)
         
