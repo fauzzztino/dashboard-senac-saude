@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-st.title("Dashboard de Saúde Mental: Rede Social x Estresse")
+st.title("Rede Social x Estresse")
 
 # Carrega os dados
 df = pd.read_csv("base_tratada.csv")
