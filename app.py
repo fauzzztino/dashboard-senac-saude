@@ -2,34 +2,46 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-st.title("🧠 Rede Social x Estresse")
+# Título da página
+st.title("Dashboard de Saúde Mental")
+st.subheader("Análise: Rede Social x Estresse")
 
-@st.cache_data
-def carregar_dados():
-    return pd.read_csv("base_tratada.csv")
+# Carrega a base de dados
+dados = pd.read_csv("base_tratada.csv")
 
-# Converte decimal (ex: 2.75) para o formato de relógio (ex: 2:45)
-def formatar_hora(v):
-    h, m = int(v), int(round((v - int(v)) * 60))
-    return f"{h + 1 if m == 60 else h}:{0 if m == 60 else m:02d}"
+# 1. Filtra para não ter valores repetidos de horas de redes sociais
+dados_unicos = dados.drop_duplicates(subset=["Social_Media_Hours"])
 
-try:
-    df = carregar_dados()
-    
-    # Pega 10 casos únicos ordenados pelo tempo de tela
-    df_plot = df.drop_duplicates(subset=["Social_Media_Hours"]).sample(10, random_state=42).sort_values("Social_Media_Hours")
+# 2. Pega uma amostra de 10 linhas e ordena pelo tempo de tela (do menor para o maior)
+amostra_estudantes = dados_unicos.sample(n=10, random_state=42)
+amostra_estudantes = amostra_estudantes.sort_values(by="Social_Media_Hours")
 
-    # Renderiza o gráfico
-    fig, ax = plt.subplots(figsize=(10, 4))
-    ax.bar(range(10), df_plot["nivel_estresse"], color="#1f77b4")
-    ax.set_ylim(0, df_plot["nivel_estresse"].max() + 1)
-    ax.set_title("Rede Social x Estresse")
-    ax.set_xlabel("Tempo de uso de Redes Sociais")
-    ax.set_ylabel("Nível de Estresse")
-    ax.set_xticks(range(10))
-    ax.set_xticklabels([formatar_hora(h) for h in df_plot["Social_Media_Hours"]])
-    
-    st.pyplot(fig)
+# 3. Função simples para converter o número decimal em horas e minutos (ex: 2.5 vira 2:30)
+def converter_para_horas(valor):
+    horas = int(valor)
+    minutos = int((valor - horas) * 60)
+    return f"{horas}:{minutos:02d}"
 
-except FileNotFoundError:
-    st.error("⚠️ Arquivo 'base_tratada.csv' não encontrado.")
+# Cria a lista com os horários formatados para usar no eixo X
+eixo_x_horas = []
+for tempo in amostra_estudantes["Social_Media_Hours"]:
+    texto_formatado = converter_para_horas(tempo)
+    eixo_x_horas.append(texto_formatado)
+
+# 4. Monta o gráfico utilizando o Matplotlib de forma básica
+figura, eixo = plt.subplots(figsize=(10, 5))
+
+# Desenha as colunas
+eixo.bar(range(10), amostra_estudantes["nivel_estresse"], color="#1f77b4")
+
+# Configurações visuais simples do gráfico
+eixo.set_title("Relação entre Rede Social e Nível de Estresse")
+eixo.set_xlabel("Tempo de uso de Redes Sociais")
+eixo.set_ylabel("Nível de Estresse")
+
+# Define os rótulos do eixo X com os horários convertidos
+eixo.set_xticks(range(10))
+eixo.set_xticklabels(eixo_x_horas)
+
+# Exibe o gráfico na tela do Streamlit
+st.pyplot(figura)
