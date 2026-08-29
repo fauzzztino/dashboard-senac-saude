@@ -51,37 +51,42 @@ try:
     c1, c2, c3 = st.columns(3)
     c1.metric("Estudantes Analisados", len(dff))
     c2.metric("Estresse Médio", f"{dff['nivel_estresse'].mean():.1f}" if not dff.empty else "0")
-    # Usa a nova função para mostrar no formato relógio no topo
     c3.metric("Média Redes Sociais", decimal_para_horas(dff['Social_Media_Hours'].mean()) if not dff.empty else "0:00")
     st.divider()
 
     # --- GRÁFICOS ---
     if not dff.empty:
         
-        # 1. Gráfico Transformado - Ajustado para mostrar diferença real
-        st.subheader("Redes Sociais x Estresse")
+        # 1. Gráfico Transformado: Casos Individuais Únicos
+        st.subheader("Casos Individuais: Tempo de Tela x Estresse")
         
-        # Agrupa sem arredondar agressivamente para mostrar a diferença real nas alturas
-        media_estresse = dff.groupby(dff["Social_Media_Hours"].round(0))["nivel_estresse"].mean()
+        # Filtra para ter apenas 1 estudante por quantidade de horas (remove os repetidos)
+        df_unicos = dff.drop_duplicates(subset=["Social_Media_Hours"])
+        
+        # Pega até 8 estudantes variados e ordena do que usa menos para o que usa mais redes sociais
+        num_amostras = min(8, len(df_unicos))
+        df_plot = df_unicos.sample(num_amostras, random_state=42).sort_values("Social_Media_Hours")
 
         fig1, ax1 = plt.subplots(figsize=(10, 4))
-        media_estresse.plot.bar(ax=ax1, color="#1f77b4") 
         
-        # Corta a base do eixo Y dinamicamente para ressaltar a diferença visual das barras
-        min_y = max(0, media_estresse.min() - 0.5)
-        ax1.set_ylim(min_y, media_estresse.max() + 0.5)
+        # Cria as barras baseadas nos 8 alunos únicos
+        barras = ax1.bar(range(num_amostras), df_plot["nivel_estresse"], color="#1f77b4") 
         
-        ax1.set_title("Nível Médio de Estresse por Horas de Tela")
-        ax1.set_xlabel("Horas em Redes Sociais (Agrupadas)")
-        ax1.set_ylabel("Nível de Estresse")
-        plt.xticks(rotation=0) 
+        ax1.set_ylim(0, df_plot["nivel_estresse"].max() + 1)
+        ax1.set_title("Nível de Estresse de 8 Estudantes Distintos (Do menor para o maior tempo de tela)")
+        ax1.set_xlabel("Exemplos Reais: Tempo de Tela de cada Aluno")
+        ax1.set_ylabel("Nível de Estresse (Indivíduo)")
         
-        for bar in ax1.patches:
+        # Troca os números do eixo X pelo tempo de tela exato (ex: 1:30, 8:00)
+        labels_x = [decimal_para_horas(h) for h in df_plot["Social_Media_Hours"]]
+        ax1.set_xticks(range(num_amostras))
+        ax1.set_xticklabels(labels_x, rotation=0)
+        
+        for bar in barras:
             if bar.get_height() > 0: 
-                # Coloca a nota de estresse (ex: 3.4) com 1 casa decimal para mostrar precisão
-                meio_da_barra_visivel = min_y + (bar.get_height() - min_y) / 2
+                # Coloca a nota de estresse exata de cada aluno dentro da barra
                 ax1.annotate(f"{bar.get_height():.1f}", 
-                                (bar.get_x() + bar.get_width() / 2, meio_da_barra_visivel), 
+                                (bar.get_x() + bar.get_width() / 2, bar.get_height() / 2), 
                                 ha='center', va='center', color='white', fontsize=12, fontweight='bold')
         
         st.pyplot(fig1)
