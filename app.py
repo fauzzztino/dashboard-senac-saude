@@ -57,8 +57,8 @@ try:
     # --- GRÁFICOS ---
     if not dff.empty:
         
-        # 1. Gráfico Transformado: Casos Individuais Únicos
-        st.subheader("Casos Individuais: Tempo de Tela x Estresse")
+        # 1. Gráfico Transformado: Rede Social x Estresse
+        st.subheader("Rede Social x Estresse")
         
         # Filtra para ter apenas 1 estudante por quantidade de horas (remove os repetidos)
         df_unicos = dff.drop_duplicates(subset=["Social_Media_Hours"])
@@ -73,16 +73,14 @@ try:
         barras = ax1.bar(range(num_amostras), df_plot["nivel_estresse"], color="#1f77b4") 
         
         ax1.set_ylim(0, df_plot["nivel_estresse"].max() + 1)
-        ax1.set_title("Nível de Estresse de 8 Estudantes Distintos (Do menor para o maior tempo de tela)")
-        ax1.set_xlabel("Exemplos Reais: Tempo de Tela de cada Aluno")
-        ax1.set_ylabel("Nível de Estresse (Indivíduo)")
+        ax1.set_title("Rede Social x Estresse (Amostra de 8 Casos Reais)")
+        ax1.set_xlabel("Tempo de uso de Redes Sociais")
+        ax1.set_ylabel("Nível de Estresse")
         
         # Troca os números do eixo X pelo tempo de tela exato (ex: 1:30, 8:00)
         labels_x = [decimal_para_horas(h) for h in df_plot["Social_Media_Hours"]]
         ax1.set_xticks(range(num_amostras))
         ax1.set_xticklabels(labels_x, rotation=0)
-        
-        # Os números dentro das barras do gráfico 1 foram removidos aqui!
         
         st.pyplot(fig1)
         
