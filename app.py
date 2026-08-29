@@ -63,17 +63,17 @@ try:
         # Filtra para ter apenas 1 estudante por quantidade de horas (remove os repetidos)
         df_unicos = dff.drop_duplicates(subset=["Social_Media_Hours"])
         
-        # Pega até 8 estudantes variados e ordena do que usa menos para o que usa mais redes sociais
-        num_amostras = min(8, len(df_unicos))
+        # Pega até 10 estudantes variados e ordena do que usa menos para o que usa mais redes sociais
+        num_amostras = min(10, len(df_unicos))
         df_plot = df_unicos.sample(num_amostras, random_state=42).sort_values("Social_Media_Hours")
 
         fig1, ax1 = plt.subplots(figsize=(10, 4))
         
-        # Cria as barras baseadas nos 8 alunos únicos
+        # Cria as barras baseadas nos 10 alunos únicos
         barras = ax1.bar(range(num_amostras), df_plot["nivel_estresse"], color="#1f77b4") 
         
         ax1.set_ylim(0, df_plot["nivel_estresse"].max() + 1)
-        ax1.set_title("Rede Social x Estresse (Amostra de 8 Casos Reais)")
+        ax1.set_title("Rede Social x Estresse") # Legenda removida!
         ax1.set_xlabel("Tempo de uso de Redes Sociais")
         ax1.set_ylabel("Nível de Estresse")
         
