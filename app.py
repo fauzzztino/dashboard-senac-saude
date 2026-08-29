@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Saúde Mental - Universitários", layout="wide")
@@ -51,17 +50,29 @@ try:
 
     # --- GRÁFICOS ---
     if not dff.empty:
-        # 1. Gráfico Plotly Original (Redes Sociais x Estresse)
+        
+        # 1. Gráfico Transformado (Matplotlib) para ficar igual ao seu!
+        st.subheader("Redes Sociais x Estresse")
+        
+        # Pega a amostra e agrupa a média de estresse para cada hora de rede social
         df_plot = dff.sample(min(100, len(dff)), random_state=42)
-        df_plot = df_plot.groupby(df_plot["Social_Media_Hours"].round(0))["nivel_estresse"].mean().round(0).reset_index()
+        media_estresse = df_plot.groupby(df_plot["Social_Media_Hours"].round(0))["nivel_estresse"].mean().round(0)
 
-        fig = px.line(
-            df_plot, x="Social_Media_Hours", y="nivel_estresse", markers=True,
-            color_discrete_sequence=px.colors.qualitative.Bold,
-            labels={"Social_Media_Hours": "Horas em Redes Sociais", "nivel_estresse": "Nível Médio de Estresse"}
-        )
-        fig.update_layout(xaxis_title_font=dict(size=16), yaxis_title_font=dict(size=16))
-        st.plotly_chart(fig, use_container_width=True)
+        fig1, ax1 = plt.subplots(figsize=(10, 4))
+        media_estresse.plot.bar(ax=ax1, color="#1f77b4") # Usa a mesma cor azul padrão
+        ax1.set_title("Nível Médio de Estresse por Horas de Tela")
+        ax1.set_xlabel("Horas em Redes Sociais")
+        ax1.set_ylabel("Nível de Estresse")
+        plt.xticks(rotation=0) # Deixa os números do eixo X retos
+        
+        # Adiciona os valores dentro das barras
+        for bar in ax1.patches:
+            if bar.get_height() > 0: # Só coloca número se a barra existir
+                ax1.annotate(f"{bar.get_height():.0f}", 
+                                (bar.get_x() + bar.get_width() / 2, bar.get_height() / 2), 
+                                ha='center', va='center', color='white', fontsize=12, fontweight='bold')
+        
+        st.pyplot(fig1)
         
         st.divider()
 
@@ -79,23 +90,22 @@ try:
                 quantidade,
                 labels=quantidade.index,
                 autopct=lambda pct: f"{pct:.1f}%\n({int(pct * total / 100):,})",
-                colors=["#1f77b4", "#ff7f0e"] # Cores mais vivas para a pizza
+                colors=["#1f77b4", "#ff7f0e"] # Cores para a pizza
             )
             st.pyplot(fig_pie)
 
         with col2:
-            st.subheader("Redes Sociais x Depressão") # <--- Traduzido aqui!
+            st.subheader("Redes Sociais x Depressão")
             media = dff.groupby("Depression")["Social_Media_Hours"].mean().rename({"Não": "Sem depressão", "Sim": "Com depressão"})
             
             fig_bar, ax_bar = plt.subplots(figsize=(8, 6))
-            bars = media.plot.bar(ax=ax_bar, color=["#2ca02c", "#d62728"]) 
+            media.plot.bar(ax=ax_bar, color=["#2ca02c", "#d62728"]) 
             ax_bar.set_title("Média de uso de redes sociais")
             ax_bar.set_ylabel("Horas")
             plt.xticks(rotation=0) 
             
             # Adiciona os valores dentro das barras
             for bar in ax_bar.patches:
-                # O texto vai ficar bem no meio da barra (altura / 2)
                 ax_bar.annotate(f"{bar.get_height():.1f} h", 
                                 (bar.get_x() + bar.get_width() / 2, bar.get_height() / 2), 
                                 ha='center', va='center', color='white', fontsize=14, fontweight='bold')
