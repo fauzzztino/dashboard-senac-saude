@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+st.set_page_config(layout="wide")
+
 st.title("Rede Social x Estresse")
 df = pd.read_csv("base_tratada.csv")
 df_grafico = df.drop_duplicates(subset=["Social_Media_Hours"]).sample(10, random_state=42)
