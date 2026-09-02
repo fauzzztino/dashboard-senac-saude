@@ -12,8 +12,12 @@ def formata_hora(valor):
     m = int((valor - h) * 60)
     return f"{h}:{m:02d}"
 
-df_grafico["Tempo de Uso das Redes"] = df_grafico["Social_Media_Hours"].apply(formata_hora)
-df_grafico = df_grafico.rename(columns={"nivel_estresse": "Nível de Estresse"})
-df_grafico = df_grafico.set_index("Tempo de Uso das Redes")
+df_grafico["Tempo de Uso"] = df_grafico["Social_Media_Hours"].apply(formata_hora)
 
-st.bar_chart(df_grafico["Nível de Estresse"])
+df_grafico = df_grafico.set_index("Tempo de Uso")
+
+st.bar_chart(
+    df_grafico["nivel_estresse"],
+    x_label="Tempo de uso de Redes Sociais",
+    y_label="Nível de Estresse"
+)
