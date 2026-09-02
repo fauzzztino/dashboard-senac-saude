@@ -71,3 +71,55 @@ with col2:
 	)
 
 	st.pyplot(fig)
+
+with c3:
+    st.subheader("3. Nível de Estresse x Depressão")
+        
+    # Usa todos os estudantes após os filtros
+    df_amostra_3 = df_filtrado.copy()
+        
+    # Cria grupos de nível de estresse
+    df_amostra_3["Grupo_Estresse"] = pd.cut(
+        df_amostra_3["nivel_estresse"],
+        bins=[0, 3, 6, 10],
+        labels=["Baixo (1–3)", "Moderado (4–6)", "Alto (7–10)"],
+        include_lowest=True
+    )
+        
+    # Conta estudantes por nível de estresse e depressão
+    df_g3 = (
+        df_amostra_3
+        .groupby(["Grupo_Estresse", "Depression"], observed=False)
+        .size()
+        .reset_index(name="Quantidade")
+    )
+        
+    fig3 = px.bar(
+        df_g3,
+        x="Grupo_Estresse",
+        y="Quantidade",
+        color="Depression",
+        barmode="group",
+        text="Quantidade",
+        color_discrete_sequence=CORES_ALTO_CONTRASTE,
+        labels={
+            "Grupo_Estresse": "Nível de Estresse",
+            "Quantidade": "Quantidade de Estudantes",
+            "Depression": "Sintomas Depressivos"
+        }
+    )
+        
+    # Formata os números nas barras
+    fig3.update_traces(
+        texttemplate="%{text:,.0f}",
+        textposition="outside"
+    )
+        
+    # Configura o eixo Y de 0 até 70.000, com linhas a cada 10.000
+    fig3.update_yaxes(
+        range=[0, 70000],
+        dtick=10000,
+        tickformat=","
+    )
+        
+    st.plotly_chart(fig3, use_container_width=True)
