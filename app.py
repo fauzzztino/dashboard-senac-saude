@@ -139,3 +139,170 @@ with c3:
     )
         
     st.plotly_chart(fig3, use_container_width=True)
+# ==========================================
+# GRÁFICO 4 - RICHARD
+# SONO X ESTRESSE
+# ==========================================
+
+st.divider()
+
+st.subheader("4. Relação entre Duração do Sono e Nível de Estresse")
+
+
+# Calcula a média de horas de sono
+# para cada nível de estresse
+sono_estresse = (
+    df
+    .groupby("nivel_estresse", as_index=False)["Sleep_Duration"]
+    .mean()
+    .sort_values("nivel_estresse")
+)
+
+
+# Cria o gráfico
+grafico_estresse = go.Figure()
+
+
+# Valores mínimo e máximo do estresse
+stress_min = sono_estresse["nivel_estresse"].min()
+stress_max = sono_estresse["nivel_estresse"].max()
+
+
+# ==========================================
+# LINHA COM TRANSIÇÃO SUAVE DE CORES
+# ==========================================
+
+for i in range(len(sono_estresse) - 1):
+
+    stress_medio = (
+        sono_estresse["nivel_estresse"].iloc[i]
+        + sono_estresse["nivel_estresse"].iloc[i + 1]
+    ) / 2
+
+
+    stress_normalizado = (
+        (stress_medio - stress_min)
+        / (stress_max - stress_min)
+    )
+
+
+    cor = sample_colorscale(
+        "YlOrRd",
+        stress_normalizado
+    )[0]
+
+
+    # Cria cada segmento da linha
+    grafico_estresse.add_trace(
+        go.Scatter(
+            x=[
+                sono_estresse["nivel_estresse"].iloc[i],
+                sono_estresse["nivel_estresse"].iloc[i + 1]
+            ],
+
+            y=[
+                sono_estresse["Sleep_Duration"].iloc[i],
+                sono_estresse["Sleep_Duration"].iloc[i + 1]
+            ],
+
+            mode="lines",
+
+            line=dict(
+                color=cor,
+                width=3
+            ),
+
+            showlegend=False
+        )
+    )
+
+
+# ==========================================
+# PONTOS COLORIDOS
+# ==========================================
+
+grafico_estresse.add_trace(
+    go.Scatter(
+        x=sono_estresse["nivel_estresse"],
+
+        y=sono_estresse["Sleep_Duration"],
+
+        mode="markers",
+
+        marker=dict(
+            size=9,
+
+            color=sono_estresse["nivel_estresse"],
+
+            colorscale="YlOrRd",
+
+            cmin=stress_min,
+            cmax=stress_max,
+
+            showscale=True,
+
+            colorbar=dict(
+                title=dict(
+                    text="Nível de<br>Estresse",
+                    font=dict(size=20)
+                ),
+
+                tickfont=dict(size=16),
+
+                thickness=25,
+
+                len=1
+            )
+        ),
+
+        showlegend=False
+    )
+)
+
+
+# ==========================================
+# CONFIGURAÇÃO VISUAL
+# ==========================================
+
+grafico_estresse.update_layout(
+    template="plotly_dark",
+
+    height=450,
+
+    font=dict(size=16),
+
+    xaxis=dict(
+        title=dict(
+            text="Nível de Estresse",
+            font=dict(size=20)
+        ),
+
+        tickfont=dict(size=16)
+    ),
+
+    yaxis=dict(
+        title=dict(
+            text="Média da Duração do Sono (horas)",
+            font=dict(size=20)
+        ),
+
+        tickfont=dict(size=16)
+    ),
+
+    margin=dict(
+        l=80,
+        r=110,
+        t=30,
+        b=80
+    )
+)
+
+
+# ==========================================
+# EXIBE O GRÁFICO
+# ==========================================
+
+st.plotly_chart(
+    grafico_estresse,
+    use_container_width=True
+)
