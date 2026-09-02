@@ -133,7 +133,7 @@ c3, c4 = st.columns(2)
 
 
 # ==========================================
-# GRÁFICO 4 - COLEGA
+# GRÁFICO 4 - JULIA
 # NÍVEL DE ESTRESSE X DEPRESSÃO
 # ==========================================
 
