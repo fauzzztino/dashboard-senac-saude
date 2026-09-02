@@ -22,9 +22,9 @@ ax.set_xticks(range(10))
 ax.set_xticklabels(rotulos_tempo)
 st.pyplot(fig)
 
-sem_depressão = dados[dados["Depression"] == False]
-com_depressão = dados[dados["Depression"] == True]
-quantidade = dados["Depression"].value_counts()
+sem_depressão = df[df["Depression"] == False]
+com_depressão = df[df["Depression"] == True]
+quantidade = df["Depression"].value_counts()
 quantidade.index = ["Sem depressão", "Com depressão"]
 
 col1, col2 = st.columns(2)
@@ -42,7 +42,7 @@ with col1:
 
 	st.pyplot(fig)
 
-media = dados.groupby("Depression")["Social_Media_Hours"].mean()
+media = df.groupby("Depression")["Social_Media_Hours"].mean()
 media.index = ["Sem depressão", "Com depressão"]
 
 with col2:
