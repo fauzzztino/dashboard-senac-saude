@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
+CORES_ALTO_CONTRASTE = px.colors.qualitative.Bold
 
 st.set_page_config(layout="wide")
 
