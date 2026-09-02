@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 
 st.title("Rede Social x Estresse")
 
@@ -13,19 +12,8 @@ def formata_hora(valor):
     m = int((valor - h) * 60)
     return f"{h}:{m:02d}"
 
-rotulos_tempo = [formata_hora(t) for t in df_grafico["Social_Media_Hours"]]
+df_grafico["Tempo de Uso das Redes"] = df_grafico["Social_Media_Hours"].apply(formata_hora)
+df_grafico = df_grafico.rename(columns={"nivel_estresse": "Nível de Estresse"})
+df_grafico = df_grafico.set_index("Tempo de Uso das Redes")
 
-fig, ax = plt.subplots(figsize=(10, 4))
-
-fig.patch.set_alpha(0)
-ax.patch.set_alpha(0)
-
-ax.bar(range(10), df_grafico["nivel_estresse"], color="#1f77b4")
-
-ax.set_title("Rede Social x Estresse")
-ax.set_xlabel("Tempo de uso de Redes Sociais")
-ax.set_ylabel("Nível de Estresse")
-ax.set_xticks(range(10))
-ax.set_xticklabels(rotulos_tempo)
-
-st.pyplot(fig)
+st.bar_chart(df_grafico["Nível de Estresse"])
