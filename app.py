@@ -26,3 +26,4 @@ st.bar_chart(
     df_grafico["nivel_estresse"],
     x_label="Tempo de uso de Redes Sociais",
     y_label="Nível de Estresse"
+)
