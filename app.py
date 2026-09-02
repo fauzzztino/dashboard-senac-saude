@@ -71,6 +71,8 @@ with col2:
 	)
 
 	st.pyplot(fig)
+	
+c3 = st.columns(1)
 
 with c3:
     st.subheader("3. Nível de Estresse x Depressão")
