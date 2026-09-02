@@ -3,13 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objects as go
+import altair as alt
 from plotly.colors import sample_colorscale
 CORES_ALTO_CONTRASTE = px.colors.qualitative.Bold
 
 st.set_page_config(layout="wide")
 
 st.title("Rede Social x Estresse")
-
 df = pd.read_csv("base_tratada.csv")
 
 df["Social_Media_Hours"] = df["Social_Media_Hours"].round()
@@ -23,20 +23,20 @@ def formata_hora(valor):
 
 df_grafico["Tempo de Uso"] = df_grafico["Social_Media_Hours"].apply(formata_hora)
 
-df_grafico["Tempo de Uso"] = pd.Categorical(
-    df_grafico["Tempo de Uso"], 
-    categories=[f"{int(h)}:00" for h in sorted(df_grafico["Social_Media_Hours"].unique())], 
-    ordered=True
+chart = alt.Chart(df_grafico).mark_bar().encode(
+    x=alt.X(
+        'Tempo de Uso:N', 
+        sort=None, 
+        title='Tempo de uso de Redes Sociais',
+        axis=alt.Axis(labelAngle=0) # <--- Força o texto a ficar na horizontal!
+    ),
+    y=alt.Y(
+        'nivel_estresse:Q', 
+        title='Nível de Estresse'
+    )
 )
 
-df_grafico = df_grafico.sort_values(by="Social_Media_Hours")
-df_grafico = df_grafico.set_index("Tempo de Uso")
-
-st.bar_chart(
-    df_grafico["nivel_estresse"],
-    x_label="Tempo de uso de Redes Sociais",
-    y_label="Nível de Estresse"
-)
+st.altair_chart(chart, use_container_width=True)
 
 sem_depressão = df[df["Depression"] == False]
 com_depressão = df[df["Depression"] == True]
