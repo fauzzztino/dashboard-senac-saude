@@ -4,20 +4,20 @@ import pandas as pd
 st.title("Rede Social x Estresse")
 
 df = pd.read_csv("base_tratada.csv")
-df_grafico = df.drop_duplicates(subset=["Social_Media_Hours"]).sample(10, random_state=42)
-df_grafico = df_grafico.sort_values(by="Social_Media_Hours")
 
-def formata_hora(valor):
-    h = int(valor)
-    m = int((valor - h) * 60)
-    return f"{h}:{m:02d}"
+# 1. Arredondamos as horas para números inteiros (ex: 2.75 vira 3, 1.2 vira 1)
+df["Horas Arredondadas"] = df["Social_Media_Hours"].round().astype(int)
 
-df_grafico["Tempo de Uso"] = df_grafico["Social_Media_Hours"].apply(formata_hora)
+# 2. Agrupamos por tempo de tela e calculamos a MÉDIA de estresse (Conceito de Banco de Dados)
+df_agrupado = df.groupby("Horas Arredondadas")["nivel_estresse"].mean().reset_index()
 
-df_grafico = df_grafico.set_index("Tempo de Uso")
+# 3. Criamos um texto bonito para o eixo X (ex: "2 horas") e definimos como índice
+df_agrupado["Tempo de Uso"] = df_agrupado["Horas Arredondadas"].astype(str) + " horas"
+df_agrupado = df_agrupado.set_index("Tempo de Uso")
 
+# 4. Geramos o gráfico
 st.bar_chart(
-    df_grafico["nivel_estresse"],
+    df_agrupado["nivel_estresse"],
     x_label="Tempo de uso de Redes Sociais",
-    y_label="Nível de Estresse"
+    y_label="Média do Nível de Estresse"
 )
