@@ -16,6 +16,13 @@ def formata_hora(valor):
 
 df_grafico["Tempo de Uso"] = df_grafico["Social_Media_Hours"].apply(formata_hora)
 
+df_grafico["Tempo de Uso"] = pd.Categorical(
+    df_grafico["Tempo de Uso"], 
+    categories=[f"{int(h)}:00" for h in sorted(df_grafico["Social_Media_Hours"].unique())], 
+    ordered=True
+)
+
+df_grafico = df_grafico.sort_values(by="Social_Media_Hours")
 df_grafico = df_grafico.set_index("Tempo de Uso")
 
 st.bar_chart(
