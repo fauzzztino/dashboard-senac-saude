@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
 
 st.title("Rede Social x Estresse")
 df = pd.read_csv("base_tratada.csv")
