@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
+import plotly.graph_objects as go
+from plotly.colors import sample_colorscale
 CORES_ALTO_CONTRASTE = px.colors.qualitative.Bold
 
 st.set_page_config(layout="wide")
