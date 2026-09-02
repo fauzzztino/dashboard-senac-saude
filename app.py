@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 st.set_page_config(layout="wide")
 
@@ -72,7 +73,7 @@ with col2:
 
 	st.pyplot(fig)
 	
-c3 = st.columns(1)
+c3, c4 = st.columns(2)
 
 with c3:
     st.subheader("3. Nível de Estresse x Depressão")
