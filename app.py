@@ -7,24 +7,34 @@ CORES_ALTO_CONTRASTE = px.colors.qualitative.Bold
 st.set_page_config(layout="wide")
 
 st.title("Rede Social x Estresse")
+
 df = pd.read_csv("base_tratada.csv")
+
+df["Social_Media_Hours"] = df["Social_Media_Hours"].round()
+
 df_grafico = df.drop_duplicates(subset=["Social_Media_Hours"]).sample(10, random_state=42)
 df_grafico = df_grafico.sort_values(by="Social_Media_Hours")
 
 def formata_hora(valor):
     h = int(valor)
-    m = int((valor - h) * 60)
-    return f"{h}:{m:02d}"
+    return f"{h}:00"
 
-rotulos_tempo = [formata_hora(t) for t in df_grafico["Social_Media_Hours"]]
-fig, ax = plt.subplots(figsize=(10, 4))
-ax.bar(range(10), df_grafico["nivel_estresse"], color="#1f77b4")
-ax.set_title("Rede Social x Estresse")
-ax.set_xlabel("Tempo de uso de Redes Sociais")
-ax.set_ylabel("Nível de Estresse")
-ax.set_xticks(range(10))
-ax.set_xticklabels(rotulos_tempo)
-st.pyplot(fig)
+df_grafico["Tempo de Uso"] = df_grafico["Social_Media_Hours"].apply(formata_hora)
+
+df_grafico["Tempo de Uso"] = pd.Categorical(
+    df_grafico["Tempo de Uso"], 
+    categories=[f"{int(h)}:00" for h in sorted(df_grafico["Social_Media_Hours"].unique())], 
+    ordered=True
+)
+
+df_grafico = df_grafico.sort_values(by="Social_Media_Hours")
+df_grafico = df_grafico.set_index("Tempo de Uso")
+
+st.bar_chart(
+    df_grafico["nivel_estresse"],
+    x_label="Tempo de uso de Redes Sociais",
+    y_label="Nível de Estresse"
+)
 
 sem_depressão = df[df["Depression"] == False]
 com_depressão = df[df["Depression"] == True]
