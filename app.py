@@ -79,7 +79,7 @@ with c3:
     st.subheader("3. Nível de Estresse x Depressão")
         
     # Usa todos os estudantes após os filtros
-    df_amostra_3 = df_filtrado.copy()
+    df_amostra_3 = df.copy()
         
     # Cria grupos de nível de estresse
     df_amostra_3["Grupo_Estresse"] = pd.cut(
