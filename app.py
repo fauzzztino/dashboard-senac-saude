@@ -79,7 +79,7 @@ media = df.groupby("Depression")["Social_Media_Hours"].mean()
 media.index = ["Sem depressão", "Com depressão"]
 
 with col2:
-    st.subheader("Social Media x Depression")
+    st.subheader("Uso de mídia social x Depressão")
 
     fig = px.bar(
         x=media.index,
