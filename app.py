@@ -10,7 +10,7 @@ CORES_ALTO_CONTRASTE = px.colors.qualitative.Bold
 
 st.set_page_config(layout="wide")
 
-st.title("Rede Social x Estresse")
+st.title("1. Rede Social x Estresse")
 df = pd.read_csv("base_tratada.csv")
 
 df["Social_Media_Hours"] = df["Social_Media_Hours"].round()
@@ -50,7 +50,7 @@ quantidade.index = ["Sem depressão", "Com depressão"]
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("Distribuição de estudantes por depressão")
+    st.subheader("2. Distribuição de estudantes por depressão")
 
     fig = px.pie(
         values=quantidade,
@@ -79,7 +79,7 @@ media = df.groupby("Depression")["Social_Media_Hours"].mean()
 media.index = ["Sem depressão", "Com depressão"]
 
 with col2:
-    st.subheader("Uso de mídia social x Depressão")
+    st.subheader("3. Uso de mídia social x Depressão")
 
     fig = px.bar(
         x=media.index,
