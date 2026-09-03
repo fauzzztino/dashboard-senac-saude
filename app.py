@@ -50,7 +50,7 @@ quantidade.index = ["Sem depressão", "Com depressão"]
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("2. Distribuição de estudantes por depressão")
+    st.subheader("Distribuição de estudantes por depressão")
 
     fig = px.pie(
         values=quantidade,
@@ -61,15 +61,13 @@ with col1:
 
     fig.update_traces(
         texttemplate="%{label}<br>%{percent:.1%}<br>(%{value:,})",
-        textfont_color="white",
         textposition="outside",
         showlegend=False
     )
 
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font_color="white"
+        plot_bgcolor="rgba(0,0,0,0)"
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -79,7 +77,7 @@ media = df.groupby("Depression")["Social_Media_Hours"].mean()
 media.index = ["Sem depressão", "Com depressão"]
 
 with col2:
-    st.subheader("3. Uso de mídia social x Depressão")
+    st.subheader("Social Media x Depression")
 
     fig = px.bar(
         x=media.index,
@@ -90,7 +88,6 @@ with col2:
     )
 
     fig.update_traces(
-        textfont_color="white",
         textposition="outside",
         width=0.55
     )
@@ -98,7 +95,6 @@ with col2:
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font_color="white",
         title=dict(
             text="Média de uso de redes sociais",
             x=0.5
