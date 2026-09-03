@@ -44,43 +44,36 @@ st.altair_chart(chart, use_container_width=True)
 # GRÁFICOS 2 E 3
 # ==========================================
 
-sem_depressão = df[df["Depression"] == False]
-com_depressão = df[df["Depression"] == True]
-
 quantidade = df["Depression"].value_counts()
 quantidade.index = ["Sem depressão", "Com depressão"]
 
 col1, col2 = st.columns(2)
 
-
-# ==========================================
-# GRÁFICO 2 - DISTRIBUIÇÃO POR DEPRESSÃO
-# ==========================================
-
 with col1:
     st.subheader("Distribuição de estudantes por depressão")
-    
-    fig, ax = plt.subplots(figsize=(8, 6))
 
-    fig.patch.set_alpha(0)
-    ax.patch.set_alpha(0)
-    ax.tick_params(axis="both", colors="white")
-
-    total = quantidade.sum()
-
-    ax.pie(
-        quantidade,
-        labels=quantidade.index,
-        autopct=lambda pct: f"{pct:.1f}%\n({int(pct * total / 100):,})",
-        textprops={"color": "white"}
+    fig = px.pie(
+        values=quantidade,
+        names=quantidade.index,
+        color=quantidade.index,
+        color_discrete_sequence=["#1f77b4", "#ff7f0e"]
     )
 
-    st.pyplot(fig)
+    fig.update_traces(
+        texttemplate="%{label}<br>%{percent:.1%}<br>(%{value:,})",
+        textfont_color="white",
+        textposition="outside",
+        showlegend=False
+    )
 
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="white"
+    )
 
-# ==========================================
-# GRÁFICO 3 - SOCIAL MEDIA X DEPRESSION
-# ==========================================
+    st.plotly_chart(fig, use_container_width=True)
+
 
 media = df.groupby("Depression")["Social_Media_Hours"].mean()
 media.index = ["Sem depressão", "Com depressão"]
@@ -88,41 +81,41 @@ media.index = ["Sem depressão", "Com depressão"]
 with col2:
     st.subheader("Social Media x Depression")
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-
-    fig.patch.set_alpha(0)
-    ax.patch.set_alpha(0)
-
-    media.plot.bar(
-        ax=ax,
-        color=["#1f77b4", "#ff7f0e"]
+    fig = px.bar(
+        x=media.index,
+        y=media.values,
+        color=media.index,
+        color_discrete_sequence=["#1f77b4", "#ff7f0e"],
+        text=[f"{valor:.2f} h" for valor in media]
     )
 
-    ax.tick_params(axis="both", colors="white")
-    ax.set_ylabel("Horas", color="white")
-    ax.set_title("Média de uso de redes sociais", color="white")
-
-    ax.bar_label(
-        ax.containers[0],
-        labels=[f"{valor:.2f} h" for valor in media],
-        padding=3,
-        fontsize=14,
-        color="white"
+    fig.update_traces(
+        textfont_color="white",
+        textposition="outside",
+        width=0.55
     )
 
-    ax.set_title("Média de uso de redes sociais")
-    ax.set_ylabel("Horas")
-    ax.tick_params(axis="x", labelrotation=0)
-    ax.set_ylim(0, 4)
-
-    ax.plot(
-        [0, 1],
-        [media.iloc[0], media.iloc[0]],
-        linestyle="--",
-        color="#1f77b4"
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font_color="white",
+        title=dict(
+            text="Média de uso de redes sociais",
+            x=0.5
+        ),
+        yaxis_title="Horas",
+        xaxis_title="",
+        showlegend=False,
+        yaxis_range=[0, 4]
     )
 
-    st.pyplot(fig)
+    fig.add_hline(
+        y=media.iloc[0],
+        line_dash="dash",
+        line_color="#1f77b4"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
 
 # ==========================================
